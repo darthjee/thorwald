@@ -1,3 +1,5 @@
+require 'safe_attribute_assignment'
+
 class Thorwald::Exporter
   include SafeAttributeAssignment
 

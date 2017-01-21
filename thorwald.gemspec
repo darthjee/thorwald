@@ -17,7 +17,15 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|gem|features)/})
   gem.require_paths = ["lib"]
 
+  gem.add_runtime_dependency 'safe_attribute_assignment'
+  gem.add_runtime_dependency 'activesupport'
+
+  gem.add_development_dependency "sqlite3"
+  gem.add_development_dependency "activerecord"
   gem.add_development_dependency "bundler"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
+  gem.add_development_dependency 'pry-nav'
+  gem.add_development_dependency 'simplecov'
+  gem.add_development_dependency 'codeclimate-test-reporter'
 end
