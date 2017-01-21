@@ -27,11 +27,19 @@ describe Thorwald::Exporter do
         end
       end
 
-      context 'and last record parameter is given' do
+      context 'and last record parameter is given as the first element' do
         let(:parameters) { { last_record: Document.first.id } }
 
         it 'returns all documents but the first' do
           expect(subject.as_json).to eq(Document.all.offset(1).limit(2).as_json)
+        end
+
+        context 'and count is given' do
+          let(:parameters) { { last_record: Document.first.id, count: 1 } }
+
+          it 'returns a limited set' do
+            expect(subject.as_json).to eq(Document.all.offset(1).limit(1).as_json)
+          end
         end
       end
     end
