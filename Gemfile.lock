@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    thorwald (0.0.1)
+    thorwald (0.1.0)
 
 GEM
   remote: https://rubygems.org/
