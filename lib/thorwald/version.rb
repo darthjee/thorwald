@@ -1,0 +1,3 @@
+module Thorwald
+  VERSION='0.0.1'
+end
