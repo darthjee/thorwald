@@ -29,7 +29,7 @@ describe Thorwald::Exporter do
 
       context 'but no paramters where given' do
         it 'returns only the last document' do
-          expect(subject.as_json).to eq([Document.last.as_json])
+          expect(subject.as_json).to eq([documents.last.as_json])
         end
       end
 
@@ -37,14 +37,14 @@ describe Thorwald::Exporter do
         let(:parameters) { { last_record: Document.first.id } }
 
         it 'returns all documents but the first' do
-          expect(subject.as_json).to eq(Document.all.offset(1).limit(2).as_json)
+          expect(subject.as_json).to eq(documents.offset(1).limit(2).as_json)
         end
 
         context 'and count is given' do
           let(:parameters) { { last_record: Document.first.id, count: 1 } }
 
           it 'returns a limited set' do
-            expect(subject.as_json).to eq(Document.all.offset(1).limit(1).as_json)
+            expect(subject.as_json).to eq([documents.second.as_json])
           end
         end
       end
@@ -60,6 +60,22 @@ describe Thorwald::Exporter do
 
         it 'returns the document updated' do
           expect(subject.as_json).to eq([second.as_json])
+        end
+
+        context 'wben passing another target time' do
+          let(:parameters) { { last_record: documents.third.updated_at.to_s} }
+          let(:third) { documents.third }
+
+          before do
+            second.update(name: :new_name)
+            third.update(name: :new_name)
+            second.reload
+            third.reload
+          end
+
+          it 'returns the document updated after the last one' do
+            expect(subject.as_json).to eq(documents.offset(1).as_json)
+          end
         end
       end
     end
