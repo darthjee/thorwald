@@ -4,6 +4,12 @@ describe Thorwald::Exporter do
   let(:subject) { described_class.new(Document, parameters, options) }
   let(:options) { {} }
   let(:parameters) { {} }
+  let(:documents) do
+    Timecop.freeze(2.days.ago) do
+      3.times { Document.create }
+    end
+    Document.all.order(:id)
+  end
 
   before do
     Document.delete_all
@@ -18,12 +24,12 @@ describe Thorwald::Exporter do
 
     context 'when there are documents' do
       before do
-        3.times { Document.create }
+        documents
       end
 
       context 'but no paramters where given' do
         it 'returns only the last document' do
-          expect(subject.as_json).to eq([Document.last.as_json])
+          expect(subject.as_json).to eq([documents.last.as_json])
         end
       end
 
@@ -31,14 +37,52 @@ describe Thorwald::Exporter do
         let(:parameters) { { last_record: Document.first.id } }
 
         it 'returns all documents but the first' do
-          expect(subject.as_json).to eq(Document.all.offset(1).limit(2).as_json)
+          expect(subject.as_json).to eq(documents.offset(1).limit(2).as_json)
         end
 
         context 'and count is given' do
           let(:parameters) { { last_record: Document.first.id, count: 1 } }
 
           it 'returns a limited set' do
-            expect(subject.as_json).to eq(Document.all.offset(1).limit(1).as_json)
+            expect(subject.as_json).to eq([documents.second.as_json])
+          end
+        end
+      end
+
+      context 'when givin options for attribute fetch' do
+        let(:options) { { attribute: :updated_at } }
+        let(:second) { documents.second }
+
+        before do
+          second.update(name: :new_name)
+          second.reload
+        end
+
+        it 'returns the document updated' do
+          expect(subject.as_json).to eq([second.as_json])
+        end
+
+        context 'wben passing another target time' do
+          let(:parameters) { { last_record: documents.third.updated_at.to_s} }
+          let(:third) { documents.third }
+
+          before do
+            second.update(name: :new_name)
+            third.update(name: :new_name)
+            second.reload
+            third.reload
+          end
+
+          it 'returns the document updated after the last one' do
+            expect(subject.as_json).to eq(documents.offset(1).as_json)
+          end
+        end
+
+        context 'wben passing another attribute' do
+          let(:parameters) { { last_record: documents.first.id, attribute: :id} }
+
+          it 'returns the document updated after the last one' do
+            expect(subject.as_json).to eq(documents.offset(1).as_json)
           end
         end
       end
