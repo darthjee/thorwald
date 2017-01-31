@@ -77,6 +77,14 @@ describe Thorwald::Exporter do
             expect(subject.as_json).to eq(documents.offset(1).as_json)
           end
         end
+
+        context 'wben passing another attribute' do
+          let(:parameters) { { last_record: documents.first.id, attribute: :id} }
+
+          it 'returns the document updated after the last one' do
+            expect(subject.as_json).to eq(documents.offset(1).as_json)
+          end
+        end
       end
     end
   end
