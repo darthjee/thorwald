@@ -24,6 +24,10 @@ class Thorwald::Exporter
 
   private
 
+  def attribute
+    params[:attribute] || @attribute
+  end
+
   def scoped
     @scoped ||= clazz.where(where, last_record_id).order(attribute)
   end
@@ -33,7 +37,7 @@ class Thorwald::Exporter
   end
 
   def last_record_id
-    params[:last_record] || clazz.last.try(attribute)
+    params[:last_record] || clazz.order(attribute).last.try(attribute)
   end
 
   def count
